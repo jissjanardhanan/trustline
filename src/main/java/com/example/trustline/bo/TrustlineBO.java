@@ -1,5 +1,6 @@
 package com.example.trustline.bo;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -29,12 +30,17 @@ public class TrustlineBO {
 	
 	public String pay(int amount,String user){
 		LOGGER.info("Paying "+amount+"$ to "+user);
-		int status = HttpUtil.post(user, amount, port);
-		if(status==200){
-			balance.updateAndGet(val-> val-amount);
-		}else{
+		try {
+			int status = HttpUtil.post(user, amount, port);
+			if(status==200){
+				balance.updateAndGet(val-> val-amount);
+			}else{
+				LOGGER.error("Unable to update "+user);
+			}
+		} catch (IOException e) {
 			LOGGER.error("Unable to update "+user);
 		}
+		
 		String response  = getBalance();
 		LOGGER.info(response);
 		return response;

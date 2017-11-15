@@ -13,7 +13,8 @@ public class HttpUtil {
 	
 	private static Logger LOGGER = LoggerFactory.getLogger(HttpUtil.class);
 	
-	public static int post(String user,int amount,String port) {
+	public static int post(String user,int amount,String port) throws IOException {
+		int statusCode = -1;
 		CloseableHttpClient client = HttpClients.createDefault();
 		String url = "http://localhost:"+port+"/trustapp/"+amount+"/receive?user="+user;
 		LOGGER.info("Calling "+ url);
@@ -21,12 +22,13 @@ public class HttpUtil {
 		CloseableHttpResponse response;
 		try {
 			response = client.execute(req);
-			return response.getStatusLine().getStatusCode();
+			statusCode = response.getStatusLine().getStatusCode();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Unable to connect to "+user);
+		}finally{
+			client.close();
 		}
-		return -1;
+		return statusCode;
 	}
 	
 }
